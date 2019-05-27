@@ -18,29 +18,19 @@ if __name__=="__main__":  # Should not run when imported
     camera_index = 0 # Top camera
     image_count = 0
     current_directory = os.path.dirname(os.path.realpath(__file__))
-    image_prefix = current_directory + "/data/f"
+    image_prefix = current_directory + "/data/"
     image_suffix = ".jpg"
 
     # Proxy for ALVideoDevice
     name = "nao_opencv"
     video = ALProxy("ALVideoDevice", NAO_IP, 9559)
     motionProxy = ALProxy("ALMotion", NAO_IP, 9559)
-    motionProxy.setStiffnesses("Head", 1.0)
-
-    # names            = "HeadYaw"
-    # angles           = 30.0*almath.TO_RAD
-    # fractionMaxSpeed = 0.1
-    # motionProxy.setAngles(names,angles,fractionMaxSpeed)
-    # time.sleep(3.0)
-    # motionProxy.setStiffnesses("Head", 0.0)
+    motionProxy.setStiffnesses("Head", 0.8)
 
     # Subscribe to video device on a specific camera
     # BGR for OpenCV
     name = video.subscribeCamera(name,camera_index,kQVGA,kBGRColorSpace,30)
     print "Subscribed to ", name
-
-    useSensors  = True
-    # names = ["HeadYaw", "HeadPitch"]
 
     try:
         frame = None
@@ -77,8 +67,17 @@ if __name__=="__main__":  # Should not run when imported
                 break
             elif key == 99:
                 # 'c' pressed | Capture image
+                upper_left = (80, 40)
+                bottom_right = (230, 190)
+                # Display crop center for the frame 320x240
+                # cv2.rectangle(frame, upper_left, bottom_right, (0, 255, 0), 2)
+                # cv2.imshow('Area to be cropped in Frame', frame)
+                cropped_frame = frame[upper_left[1] : bottom_right[1], upper_left[0] : bottom_right[0]]
+                gray_frame = cv2.cvtColor(cropped_frame, cv2.COLOR_BGR2GRAY)
+                resized_frame = cv2.resize(gray_frame, dsize=(28, 28), interpolation=cv2.INTER_CUBIC)
+                # cv2.imshow("Resized Frame", resized_frame)
                 image_path = image_prefix + str(image_count) + image_suffix
-                cv2.imwrite(image_path,frame)
+                cv2.imwrite(image_path, resized_frame)
                 image_count = image_count+1
 
     finally: # As fallback we'll make sure to unsubscribe
