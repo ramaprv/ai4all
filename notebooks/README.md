@@ -50,4 +50,4 @@
 
 # Final Project
 
-### [Introduction](./final%20project/Introduction.ipynb)
+### [Project](./final%20project/Project.ipynb)
