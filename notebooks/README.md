@@ -36,7 +36,6 @@
 
 ### [Machine Learning](http://hangtwenty.github.io/dive-into-machine-learning/)
 ### [Deep Learning](https://colab.research.google.com/github/lexfridman/mit-deep-learning/blob/master/tutorial_deep_learning_basics/deep_learning_basics.ipynb)
-### [Numpy](./machine%20learning/Numpy.ipynb)
 ### [PyTorch](./machine%20learning/PyTorch.ipynb)
 
 
@@ -44,10 +43,10 @@
 
 ### [Network Setup](http://doc.aldebaran.com/2-1/nao/nao-connecting.html)
 ### [Hello World](http://www.bx.psu.edu/~thanh/naoqi/getting_started/helloworld_python.html)
-### [Tutorials](http://www.bx.psu.edu/~thanh/naoqi/dev/python/tutorials.html)
-### [Examples](http://www.bx.psu.edu/~thanh/naoqi/dev/python/examples.html)
-
+### [Making NAO Speak](http://www.bx.psu.edu/~thanh/naoqi/dev/python/making_nao_speak.html)
+### [Making NAO Move](http://www.bx.psu.edu/~thanh/naoqi/dev/python/making_nao_move.html)
+### [Face Detection and Tracking](http://www.bx.psu.edu/~thanh/naoqi/dev/python/examples/vision/face_detection.html#python-example-vision-facedetection)
 
 # Final Project
 
-### [Project](./final%20project/Project.ipynb)
+### [How To Run](./final%20project/How%20To%20Run.ipynb)
