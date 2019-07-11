@@ -34,14 +34,18 @@
 
 # Machine Learning Basics
 
-### [Introduction](./machine%20learning/Introduction.ipynb)
-### [Deep Learning](./machine%20learning/Deep%20Learning.ipynb)
+### [Machine Learning](http://hangtwenty.github.io/dive-into-machine-learning/)
+### [Deep Learning](https://colab.research.google.com/github/lexfridman/mit-deep-learning/blob/master/tutorial_deep_learning_basics/deep_learning_basics.ipynb)
+### [Numpy](./machine%20learning/Numpy.ipynb)
 ### [PyTorch](./machine%20learning/PyTorch.ipynb)
 
 
 # NAO Programming Basics
 
-### [Introduction](./nao%20programming/Introduction.ipynb)
+### [Network Setup](http://doc.aldebaran.com/2-1/nao/nao-connecting.html)
+### [Hello World](http://www.bx.psu.edu/~thanh/naoqi/getting_started/helloworld_python.html)
+### [Tutorials](http://www.bx.psu.edu/~thanh/naoqi/dev/python/tutorials.html)
+### [Examples](http://www.bx.psu.edu/~thanh/naoqi/dev/python/examples.html)
 
 
 # Final Project
