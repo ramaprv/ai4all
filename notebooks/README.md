@@ -28,7 +28,8 @@
 
 # Computer Vision Basics
 
-### [Introduction](./computer%20vision/Introduction.ipynb)
+### [Linear Algebra](./computer%20vision/Linear%20Algebra.ipynb)
+### [Image Processing](./computer%20vision/Image%20Processing.ipynb)
 
 
 # Machine Learning Basics
