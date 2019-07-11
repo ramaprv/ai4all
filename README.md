@@ -1,5 +1,5 @@
-# AI4ALL by PRG at UMD
-AI4ALL project repo by Perception & Robotics Group PRG at UMD
+# AI4ALL Summer Project by PRG at UMD
+AI4ALL Summer project repository by [Perception & Robotics Group](http://prg.cs.umd.edu/) at [UMD](https://umd.edu/)
 
 This project involves using the NAO robot to detect gestures and imitate them
 on real time.
