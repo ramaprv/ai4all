@@ -1,0 +1,193 @@
+import os
+import sys
+import time
+
+import numpy as np
+
+import almath
+import cv2
+import imutils
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.utils.data as data
+import torchvision
+from naoqi import ALProxy
+from torch.autograd import Variable
+from torchvision import transforms
+from vision_definitions import kBGRColorSpace, kQVGA
+
+NAO_IP="192.168.1.7" # <YOUR_NAO_IP> or nao.local
+
+
+EPOCHS = 10
+BATCH_SIZE = 1
+LEARNING_RATE = 0.003
+current_directory = os.path.dirname(os.path.realpath(__file__))
+TRAIN_DATA_PATH = current_directory + "/data/train/"
+TEST_DATA_PATH = current_directory + "/data/test/"
+TRANSFORM_IMG = transforms.Compose([
+    transforms.Grayscale(num_output_channels=1),
+    transforms.ToTensor()
+    ])
+
+train_data = torchvision.datasets.ImageFolder(root=TRAIN_DATA_PATH, transform=TRANSFORM_IMG)
+train_data_loader = data.DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True,  num_workers=4)
+test_data = torchvision.datasets.ImageFolder(root=TEST_DATA_PATH, transform=TRANSFORM_IMG)
+test_data_loader  = data.DataLoader(test_data, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+
+
+class CNN(nn.Module):
+    def __init__(self):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Sequential(         # input shape (1, 28, 28)
+            nn.Conv2d(
+                in_channels=1,              # input height
+                out_channels=16,            # n_filters
+                kernel_size=5,              # filter size
+                stride=1,                   # filter movement/step
+                padding=2,                  # if want same width and length of this image after Conv2d, padding=(kernel_size-1)/2 if stride=1
+            ),                              # output shape (16, 28, 28)
+            nn.ReLU(),                      # activation
+            nn.MaxPool2d(kernel_size=2),    # choose max value in 2x2 area, output shape (16, 14, 14)
+        )
+        self.conv2 = nn.Sequential(         # input shape (16, 14, 14)
+            nn.Conv2d(16, 32, 5, 1, 2),     # output shape (32, 14, 14)
+            nn.ReLU(),                      # activation
+            nn.MaxPool2d(2),                # output shape (32, 7, 7)
+        )
+        self.out = nn.Linear(32 * 7 * 7, 2) # fully connected layer, output 2 classes
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = x.view(x.size(0), -1)           # flatten the output of conv2 to (batch_size, 32 * 7 * 7)
+        output = self.out(x)
+        return output, x                    # return x for visualization
+
+
+def do_gesture(tts, proxy, postureProxy):
+    # tts.say("")
+
+    # Send NAO to Pose Init
+    postureProxy.goToPosture("StandInit", 0.5)
+
+    # Enable Whole Body Balancer
+    isEnabled  = True
+    proxy.wbEnable(isEnabled)
+
+    # Legs are constrained fixed
+    stateName  = "Fixed"
+    supportLeg = "Legs"
+    proxy.wbFootState(stateName, supportLeg)
+
+    # Constraint Balance Motion
+    isEnable   = True
+    supportLeg = "Legs"
+    proxy.wbEnableBalanceConstraint(isEnable, supportLeg)
+
+    # Arms motion
+    effectorList = ["LArm", "RArm"]
+
+    space        = motion.FRAME_ROBOT
+
+    pathList     = [
+                    [
+                     [0.0,   0.08,  0.14, 0.0, 0.0, 0.0], # target 1 for "LArm"
+                     [0.0,  -0.05, -0.07, 0.0, 0.0, 0.0], # target 2 for "LArm"
+                     [0.0,   0.08,  0.14, 0.0, 0.0, 0.0], # target 3 for "LArm"
+                     [0.0,  -0.05, -0.07, 0.0, 0.0, 0.0], # target 4 for "LArm"
+                     [0.0,   0.08,  0.14, 0.0, 0.0, 0.0], # target 5 for "LArm"
+                     ],
+                    [
+                     [0.0,   0.05, -0.07, 0.0, 0.0, 0.0], # target 1 for "RArm"
+                     [0.0,  -0.08,  0.14, 0.0, 0.0, 0.0], # target 2 for "RArm"
+                     [0.0,   0.05, -0.07, 0.0, 0.0, 0.0], # target 3 for "RArm"
+                     [0.0,  -0.08,  0.14, 0.0, 0.0, 0.0], # target 4 for "RArm"
+                     [0.0,   0.05, -0.07, 0.0, 0.0, 0.0], # target 5 for "RArm"
+                     [0.0,  -0.08,  0.14, 0.0, 0.0, 0.0], # target 6 for "RArm"
+                     ]
+                    ]
+
+    axisMaskList = [almath.AXIS_MASK_VEL, # for "LArm"
+                    almath.AXIS_MASK_VEL] # for "RArm"
+
+    coef       = 1.5
+    timesList  = [ [coef*(i+1) for i in range(5)],  # for "LArm" in seconds
+                   [coef*(i+1) for i in range(6)] ] # for "RArm" in seconds
+
+    isAbsolute   = False
+
+    # called cartesian interpolation
+    proxy.positionInterpolations(effectorList, space, pathList,
+                                 axisMaskList, timesList, isAbsolute)
+
+    # Torso Motion
+    effectorList = ["LArm", "RArm"]
+
+    dy = 0.06
+    dz = 0.06
+    pathList     = [
+                     [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], # for "LArm"
+                     [[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]], # for "LArm"
+                    ]
+
+    axisMaskList = [almath.AXIS_MASK_VEL, # for "LArm"
+                    almath.AXIS_MASK_VEL] # for "RArm"
+
+    coef       = 0.5
+    timesList  = [
+                  [coef*12],                       # for "LArm" in seconds
+                  [coef*12]                        # for "RArm" in seconds
+                 ]
+
+    isAbsolute   = False
+
+    proxy.positionInterpolations(effectorList, space, pathList,
+                                 axisMaskList, timesList, isAbsolute)
+
+
+    # Deactivate whole body
+    isEnabled    = False
+    proxy.wbEnable(isEnabled)
+
+    # Send NAO to Pose Init
+    postureProxy.goToPosture("StandInit", 0.5)
+
+
+if __name__ == '__main__':
+
+    print("Number of train samples: ", len(train_data))
+    print("Number of test samples: ", len(test_data))
+    print("Detected Classes are: ", train_data.class_to_idx) # classes are detected by folder structure
+
+    model = CNN()
+    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    loss_func = nn.CrossEntropyLoss()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    # Training and Testing
+    for epoch in range(EPOCHS):
+        for step, (x, y) in enumerate(train_data_loader):
+            # print(x.squeeze(0).shape)
+            b_x = Variable(x.float())   # batch x (image)
+            b_y = Variable(y)   # batch y (target)
+            output = model(b_x)[0]
+            loss = loss_func(output, b_y)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+        print('*'*50)
+        print('Epoch: ', epoch)
+        print('Loss:', loss.data)
+
+        for _, (tx, ty) in enumerate(test_data_loader):
+            print('tx ------------> ', tx)
+            print('ty ------------> ', ty)
+
+            test_x = Variable(tx)
+            test_y = Variable(ty)
+            test_output, last_layer = model(test_x)
+            pred_y = torch.max(test_output, 1)[1].data.squeeze()
+            accuracy = sum(pred_y == test_y) / float(test_y.size(0))
+            print('Epoch: ', epoch, '| train loss: %.4f' % loss.data, '| test accuracy: %.2f' % accuracy)
