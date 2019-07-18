@@ -1,8 +1,6 @@
 import numpy as np
 
-# network
-# IP = "172.17.0.1"
-IP = "192.168.0.109"
+IP = "192.168.1.7"
 PORT = 9559
 
 # joint names
