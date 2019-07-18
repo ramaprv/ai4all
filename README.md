@@ -41,7 +41,7 @@ This project involves using the NAO robot to detect gestures / hand signals and 
 #### [File Handling](./notebooks/python/File%20Handling.ipynb)
 #### [To Do: Creating your first script](./notebooks/python/Creating%20your%20first%20script.ipynb)
 #### [To Do: Answer Key](./notebooks/python/Answer%20Key.ipynb)
-#### [To Do: Fizz Buzz](./notebooks/python/Fizz%20Buzz.ipynb)
+#### [To Do: Fizz Buzz](./notebooks/python/FizzBuzz.ipynb)
 
 
 ### Computer Vision Basics
