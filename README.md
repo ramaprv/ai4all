@@ -1,4 +1,6 @@
 # AI4ALL Summer Project by PRG at UMD
+[![Packagist](https://img.shields.io/packagist/l/doctrine/orm.svg)](LICENSE.md)
+---
 
 AI4ALL Summer project repository by [Perception & Robotics Group](http://prg.cs.umd.edu/) at [UMD](https://umd.edu/)
 
